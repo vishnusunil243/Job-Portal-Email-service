@@ -6,7 +6,7 @@ require (
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/joho/godotenv v1.5.1
 	github.com/spf13/viper v1.18.2
-	github.com/vishnusunil243/Job-Portal-proto-files v0.0.0-20240308111151-c0498c6f4199
+	github.com/vishnusunil243/Job-Portal-proto-files v0.0.0-20240309064254-ec640f8cf78c
 	google.golang.org/grpc v1.59.0
 	google.golang.org/protobuf v1.31.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df

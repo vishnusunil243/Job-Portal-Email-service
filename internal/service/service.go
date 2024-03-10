@@ -23,3 +23,10 @@ func (email *EmailService) SendOTP(ctx context.Context, req *pb.SendOtpRequest) 
 	helper.SendOTP(req.Email)
 	return &emptypb.Empty{}, nil
 }
+func (email *EmailService) VerifyOTP(ctx context.Context, req *pb.VerifyOTPRequest) (*pb.VerifyOTPResponse, error) {
+	verified := helper.VerifyOTP(req.Email, req.Otp)
+	res := &pb.VerifyOTPResponse{
+		Verified: verified,
+	}
+	return res, nil
+}

@@ -96,6 +96,10 @@ github.com/subosito/gotenv v1.6.0 h1:9NlTDc1FTs4qu0DDq7AEtTPNw6SVm7uBMsUCUjABIf8
 github.com/subosito/gotenv v1.6.0/go.mod h1:Dk4QP5c2W3ibzajGcXpNraDfq2IrhjMIvMSWPKKo0FU=
 github.com/vishnusunil243/Job-Portal-proto-files v0.0.0-20240308111151-c0498c6f4199 h1:y5roIwhdvweVzgY5LuiOsunEz6iKu5wkjsMTrwjTSIw=
 github.com/vishnusunil243/Job-Portal-proto-files v0.0.0-20240308111151-c0498c6f4199/go.mod h1:zoZMjfLKIwhHxjRemtLbrujsrrgD0V3FKcrjL6j6h7w=
+github.com/vishnusunil243/Job-Portal-proto-files v0.0.0-20240308113039-da6b213765ec h1:Tlpk69dPfOQ06XcCP42x6bvVJop92WWGf8PJFGa0Ni0=
+github.com/vishnusunil243/Job-Portal-proto-files v0.0.0-20240308113039-da6b213765ec/go.mod h1:zoZMjfLKIwhHxjRemtLbrujsrrgD0V3FKcrjL6j6h7w=
+github.com/vishnusunil243/Job-Portal-proto-files v0.0.0-20240309064254-ec640f8cf78c h1:MOfZNh4XImOuTbtUW43yEwfEsiNWoACEDwlDdCmIO6U=
+github.com/vishnusunil243/Job-Portal-proto-files v0.0.0-20240309064254-ec640f8cf78c/go.mod h1:zoZMjfLKIwhHxjRemtLbrujsrrgD0V3FKcrjL6j6h7w=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 go.uber.org/atomic v1.9.0 h1:ECmE8Bn/WFTYwEW/bpKD3M8VtR/zQVbavAoalC1PYyE=
 go.uber.org/atomic v1.9.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=
