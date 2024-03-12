@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -26,10 +27,12 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to listen on port 8087")
 	}
+	fmt.Println("email service listening on port 8087")
 	services := initializer.Initializer(DB)
 	server := grpc.NewServer()
 	pb.RegisterEmailServiceServer(server, services)
 	if err := server.Serve(listener); err != nil {
 		log.Fatalf("failed to listen on port 8087")
 	}
+
 }

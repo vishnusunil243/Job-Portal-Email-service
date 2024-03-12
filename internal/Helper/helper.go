@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/go-redis/redis"
-	"github.com/spf13/viper"
 	"gopkg.in/gomail.v2"
 )
 
@@ -16,7 +16,7 @@ var redisClient *redis.Client
 
 func init() {
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     viper.GetString("REDIS_ADDR"),
+		Addr:     os.Getenv("REDIS_ADDR"),
 		Password: "",
 		DB:       0,
 	})
@@ -27,12 +27,15 @@ func generateOTP() string {
 }
 func SendOTP(email string) error {
 	message := gomail.NewMessage()
-	message.SetHeader("From", viper.GetString("SMTP_USER"))
+	message.SetHeader("From", os.Getenv("SMTP_USER"))
+	message.SetHeader("To", email)
 	message.SetHeader("Subject", "OTP Verification")
 	otp := generateOTP()
 
 	message.SetBody("text/plain", "THIS WILL EXPIRE IN 5 MINUTES \n YOUR OTP IS : "+otp)
-	dialer := gomail.NewDialer("smtp.gmail.com", 587, viper.GetString("SMTP_USER"), viper.GetString("SMTP_PASSWORD"))
+	dialer := gomail.NewDialer("smtp.gmail.com", 587, os.Getenv("SMTP_USER"), os.Getenv("SMTP_PASSWORD"))
+	fmt.Println(os.Getenv("SMTP_USER"))
+	fmt.Println(os.Getenv("SMTP_PASSWORD"))
 	otpKey := fmt.Sprintf("otp:%s", email)
 	err := redisClient.Set(otpKey, otp, 300*time.Second).Err()
 	if err != nil {
