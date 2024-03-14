@@ -34,8 +34,6 @@ func SendOTP(email string) error {
 
 	message.SetBody("text/plain", "THIS WILL EXPIRE IN 5 MINUTES \n YOUR OTP IS : "+otp)
 	dialer := gomail.NewDialer("smtp.gmail.com", 587, os.Getenv("SMTP_USER"), os.Getenv("SMTP_PASSWORD"))
-	fmt.Println(os.Getenv("SMTP_USER"))
-	fmt.Println(os.Getenv("SMTP_PASSWORD"))
 	otpKey := fmt.Sprintf("otp:%s", email)
 	err := redisClient.Set(otpKey, otp, 300*time.Second).Err()
 	if err != nil {
