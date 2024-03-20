@@ -18,7 +18,7 @@ func main() {
 		log.Fatalf(err.Error())
 	}
 	addr := os.Getenv("DB_KEY")
-	DB, err := db.InitDB(addr)
+	DB, err := db.InitMongoDB(addr)
 	if err != nil {
 		log.Fatal("error connecting to database")
 

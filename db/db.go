@@ -1,17 +1,24 @@
 package db
 
 import (
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	"context"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func InitDB(connectTo string) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(connectTo), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
+func InitMongoDB(connectTo string) (*mongo.Database, error) {
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(connectTo))
 	if err != nil {
 		return nil, err
 	}
-	return db, err
+
+	// Ping the MongoDB server to check if the connection was successful
+	err = client.Ping(context.Background(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the database object for the specified database name
+	return client.Database("notifications"), nil
 }

@@ -1,4 +1,4 @@
-package helper
+package otp
 
 import (
 	"fmt"
