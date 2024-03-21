@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/IBM/sarama"
 	email "github.com/vishnusunil243/Job-Portal-Email-service/internal/helper/EmailSend"
 )
 
@@ -17,35 +17,42 @@ type ShortlistedUser struct {
 }
 
 func StartConsuming() {
-	c, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092",
-		"group.id":          "ShortlistConsumers",
-		"auto.offset.reset": "earliest",
-	})
+	config := sarama.NewConfig()
+	config.Consumer.Return.Errors = true
+	// config.Consumer.Offsets.Initial = sarama.OffsetOldest
+
+	consumer, err := sarama.NewConsumer([]string{"localhost:9092"}, config)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error creating consumer: %v", err)
 	}
-	defer c.Close()
+	defer consumer.Close()
+
+	partitionConsumer, err := consumer.ConsumePartition("ShortlistUser", 0, sarama.OffsetNewest)
+	if err != nil {
+		log.Fatalf("Error creating partition consumer: %v", err)
+	}
+	defer partitionConsumer.Close()
 
 	for {
-		msg, err := c.ReadMessage(-1)
-		if err != nil {
-			log.Printf("Error: %v", err)
-			continue
-		}
-
-		var shortlistedUser ShortlistedUser
-		err = json.Unmarshal(msg.Value, &shortlistedUser)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		go func(user ShortlistedUser) {
-			message := fmt.Sprintf("Congratulations! You have been shortlisted for the %s position at %s. Please visit [link to application portal] to proceed.", user.JobID, user.Company)
-			if err := email.SendEmail(user.Email, message); err != nil {
-				log.Println(err)
+		select {
+		case msg := <-partitionConsumer.Messages():
+			var shortlistedUser ShortlistedUser
+			err := json.Unmarshal(msg.Value, &shortlistedUser)
+			fmt.Println("message recieved")
+			if err != nil {
+				log.Printf("Error decoding message: %v", err)
+				continue
 			}
-		}(shortlistedUser)
+
+			go func(user ShortlistedUser) {
+				message := fmt.Sprintf("Congratulations! You have been shortlisted for the %s position at %s. Please visit [link to application portal] to proceed.", user.JobID, user.Company)
+				if err := email.SendEmail(user.Email, message); err != nil {
+					log.Println(err)
+				}
+			}(shortlistedUser)
+
+		case err := <-partitionConsumer.Errors():
+			log.Printf("Error consuming message: %v", err)
+		}
 	}
 }

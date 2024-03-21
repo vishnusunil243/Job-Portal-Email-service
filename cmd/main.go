@@ -9,6 +9,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/vishnusunil243/Job-Portal-Email-service/db"
 	"github.com/vishnusunil243/Job-Portal-Email-service/initializer"
+	"github.com/vishnusunil243/Job-Portal-Email-service/kafka"
 	"github.com/vishnusunil243/Job-Portal-proto-files/pb"
 	"google.golang.org/grpc"
 )
@@ -31,6 +32,7 @@ func main() {
 	services := initializer.Initializer(DB)
 	server := grpc.NewServer()
 	pb.RegisterEmailServiceServer(server, services)
+	go kafka.StartConsuming()
 	if err := server.Serve(listener); err != nil {
 		log.Fatalf("failed to listen on port 8087")
 	}
