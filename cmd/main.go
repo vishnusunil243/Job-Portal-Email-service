@@ -34,6 +34,9 @@ func main() {
 	pb.RegisterEmailServiceServer(server, services)
 	go kafka.StartConsumingShortlist()
 	go kafka.StartConsumingInterviewSchedule()
+	go kafka.StartConsumingHired()
+	go kafka.StartConsumingWarning()
+	go kafka.StartConsumingSubscriptionEnding()
 	if err := server.Serve(listener); err != nil {
 		log.Fatalf("failed to listen on port 8087")
 	}

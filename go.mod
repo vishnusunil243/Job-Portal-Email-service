@@ -6,7 +6,7 @@ require (
 	github.com/IBM/sarama v1.43.0
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/joho/godotenv v1.5.1
-	github.com/vishnusunil243/Job-Portal-proto-files v0.0.0-20240321181839-d55021ef4447
+	github.com/vishnusunil243/Job-Portal-proto-files v0.0.0-20240328135129-1777c5a3fb71
 	go.mongodb.org/mongo-driver v1.14.0
 	google.golang.org/grpc v1.62.1
 	google.golang.org/protobuf v1.33.0

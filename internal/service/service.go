@@ -56,8 +56,13 @@ func (email *EmailService) GetAllNotifications(req *pb.GetNotificationsByUserId,
 		if !ok {
 			return fmt.Errorf("message field is not a string in notification: %v", notification)
 		}
+		seen, ok := notification["seen"].(bool)
+		if !ok {
+			return fmt.Errorf("unable to get seen status")
+		}
 		res := &pb.NotificationResponse{
 			Message: message,
+			Seen:    seen,
 		}
 		if err := srv.Send(res); err != nil {
 			return err

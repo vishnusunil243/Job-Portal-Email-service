@@ -31,6 +31,7 @@ func (e *EmailAdapter) AddNotification(userId string, notificationData bson.M) e
 
 	// Add userId to the notification data
 	notificationData["userId"] = userId
+	notificationData["seen"] = false
 	notificationData["timestamp"] = time.Now()
 
 	_, err := collection.InsertOne(context.Background(), notificationData)
@@ -48,6 +49,14 @@ func (email *EmailAdapter) GetAllNotifications(userId string) ([]bson.M, error) 
 		return nil, err
 	}
 	defer cursor.Close(context.Background())
+	_, err = collection.UpdateMany(
+		context.Background(),
+		bson.M{"userId": userId, "seen": false},
+		bson.M{"$set": bson.M{"seen": true}},
+	)
+	if err != nil {
+		return nil, err
+	}
 	var notifications []bson.M
 	for cursor.Next(context.Background()) {
 		var notification bson.M
@@ -57,5 +66,6 @@ func (email *EmailAdapter) GetAllNotifications(userId string) ([]bson.M, error) 
 		}
 		notifications = append(notifications, notification)
 	}
+
 	return notifications, nil
 }

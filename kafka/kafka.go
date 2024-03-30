@@ -64,6 +64,7 @@ type InterviewSchedule struct {
 	Designation string `json:"Designation"`
 	Date        string `json:"Date"`
 	Company     string `json:"Company"`
+	RoomId      string `json:"RoomId"`
 }
 
 func StartConsumingInterviewSchedule() {
@@ -97,11 +98,201 @@ func StartConsumingInterviewSchedule() {
 			}
 
 			go func(interviewSchedule InterviewSchedule) {
-				message := fmt.Sprintf("your interview for the position of %s has been scheduled by the company %s at %s", interviewSchedule.Designation, interviewSchedule.Company, interviewSchedule.Date)
+				message := fmt.Sprintf("your interview for the position of %s has been scheduled by the company %s at %s your room id is : %s", interviewSchedule.Designation, interviewSchedule.Company, interviewSchedule.Date, interviewSchedule.RoomId)
 				if err := email.SendEmail(interviewSchedule.Email, message); err != nil {
 					log.Println(err)
 				}
 			}(interviewSchedule)
+
+		case err := <-partitionConsumer.Errors():
+			log.Printf("Error consuming message: %v", err)
+		}
+	}
+}
+
+type Hired struct {
+	Designation string `json:"Designation"`
+	Email       string `json:"Email"`
+	Company     string `json:"Company"`
+	Date        string `json:"Date"`
+}
+
+func StartConsumingHired() {
+	config := sarama.NewConfig()
+	config.Consumer.Return.Errors = true
+	config.Consumer.Offsets.AutoCommit.Enable = true
+	// config.Consumer.Offsets.Initial = sarama.OffsetOldest
+
+	consumer, err := sarama.NewConsumer([]string{"localhost:9092"}, config)
+	if err != nil {
+		log.Fatalf("Error creating consumer: %v", err)
+	}
+	defer consumer.Close()
+
+	partitionConsumer, err := consumer.ConsumePartition("Hired", 0, sarama.OffsetNewest)
+	fmt.Println("offset ", sarama.OffsetNewest)
+	if err != nil {
+		log.Fatalf("Error creating partition consumer: %v", err)
+	}
+	defer partitionConsumer.Close()
+
+	for {
+		select {
+		case msg := <-partitionConsumer.Messages():
+			var hired Hired
+			err := json.Unmarshal(msg.Value, &hired)
+			fmt.Println("message received from interview schedule")
+			if err != nil {
+				log.Printf("Error decoding message: %v", err)
+				continue
+			}
+
+			go func(hired Hired) {
+				message := fmt.Sprintf("In light of the interview conducted on %s we are pleased to inform you that the company %s have decided to hire you for the position of %s, you will be recieving an offer letter soon", hired.Date, hired.Company, hired.Designation)
+				if err := email.SendEmail(hired.Email, message); err != nil {
+					log.Println(err)
+				}
+			}(hired)
+
+		case err := <-partitionConsumer.Errors():
+			log.Printf("Error consuming message: %v", err)
+		}
+	}
+}
+
+type Warning struct {
+	UserName     string `json:"UserName"`
+	Designation  string `json:"Designation"`
+	Company      string `json:"Company"`
+	CompanyId    string `json:"CompanyId"`
+	Date         string `json:"Date"`
+	UserEmail    string `json:"UserEmail"`
+	CompanyEmail string `json:"CompanyEmail"`
+	RoomId       string `json:"RoomId"`
+}
+
+func StartConsumingWarning() {
+	config := sarama.NewConfig()
+	config.Consumer.Return.Errors = true
+	config.Consumer.Offsets.AutoCommit.Enable = true
+	consumer, err := sarama.NewConsumer([]string{"localhost:9092"}, config)
+	if err != nil {
+		log.Fatalf("Error creating consumer: %v", err)
+	}
+	defer consumer.Close()
+	partitionConsumer, err := consumer.ConsumePartition("Warning", 0, sarama.OffsetNewest)
+	fmt.Println("offset ", sarama.OffsetNewest)
+	if err != nil {
+		log.Fatalf("Error creating partition consumer: %v", err)
+	}
+	defer partitionConsumer.Close()
+	for {
+		select {
+		case msg := <-partitionConsumer.Messages():
+			var warning Warning
+			err := json.Unmarshal(msg.Value, &warning)
+			fmt.Println("message received warning")
+			if err != nil {
+				log.Printf("Error decoding message: %v", err)
+				continue
+			}
+			go func(warning Warning) {
+				message := fmt.Sprintf("This is a remainder message for your interview for the job opening %s for the user %s on %s with roomId %s", warning.Designation, warning.UserName, warning.Date, warning.RoomId)
+				if err := email.SendEmail(warning.CompanyEmail, message); err != nil {
+					log.Println(err)
+				}
+				userMsg := fmt.Sprintf("This is a remainder for your interview for the job opening %s at %s which is scheduled on %s with roomId %s", warning.Designation, warning.Company, warning.Date, warning.RoomId)
+				if err := email.SendEmail(warning.UserEmail, userMsg); err != nil {
+					log.Println(err)
+				}
+			}(warning)
+
+		case err := <-partitionConsumer.Errors():
+			log.Printf("Error consuming message: %v", err)
+		}
+	}
+}
+
+type SubscriptionEnding struct {
+	Email string `json:"Email"`
+}
+
+func StartConsumingSubscriptionEnding() {
+	config := sarama.NewConfig()
+	config.Consumer.Return.Errors = true
+	config.Consumer.Offsets.AutoCommit.Enable = true
+	consumer, err := sarama.NewConsumer([]string{"localhost:9092"}, config)
+	if err != nil {
+		log.Fatalf("Error creating consumer: %v", err)
+	}
+	defer consumer.Close()
+	partitionConsumer, err := consumer.ConsumePartition("SubscriptionEnding", 0, sarama.OffsetNewest)
+	fmt.Println("offset ", sarama.OffsetNewest)
+	if err != nil {
+		log.Fatalf("Error creating partition consumer: %v", err)
+	}
+	defer partitionConsumer.Close()
+	for {
+		select {
+		case msg := <-partitionConsumer.Messages():
+			var sub SubscriptionEnding
+			err := json.Unmarshal(msg.Value, &sub)
+			fmt.Println("message received subscription ending")
+			if err != nil {
+				log.Printf("Error decoding message: %v", err)
+				continue
+			}
+			go func(sub SubscriptionEnding) {
+				message := "This is a remainder regarding your subscription which is ending tomorrow so please subscribe to continue using our services"
+				if err := email.SendEmail(sub.Email, message); err != nil {
+					log.Println(err)
+				}
+
+			}(sub)
+
+		case err := <-partitionConsumer.Errors():
+			log.Printf("Error consuming message: %v", err)
+		}
+	}
+}
+
+type Subscribed struct {
+	Email    string `json:"Email"`
+	Duration string `json:"Duration"`
+}
+
+func StartConsumingSubscribed() {
+	config := sarama.NewConfig()
+	config.Consumer.Return.Errors = true
+	config.Consumer.Offsets.AutoCommit.Enable = true
+	consumer, err := sarama.NewConsumer([]string{"localhost:9092"}, config)
+	if err != nil {
+		log.Fatalf("Error creating consumer: %v", err)
+	}
+	defer consumer.Close()
+	partitionConsumer, err := consumer.ConsumePartition("Subscribed", 0, sarama.OffsetNewest)
+	fmt.Println("offset ", sarama.OffsetNewest)
+	if err != nil {
+		log.Fatalf("Error creating partition consumer: %v", err)
+	}
+	defer partitionConsumer.Close()
+	for {
+		select {
+		case msg := <-partitionConsumer.Messages():
+			var sub Subscribed
+			err := json.Unmarshal(msg.Value, &sub)
+			fmt.Println("message received subscribed")
+			if err != nil {
+				log.Printf("Error decoding message: %v", err)
+				continue
+			}
+			go func(sub Subscribed) {
+				message := "You have subscribed to our service for the duration of " + sub.Duration
+				if err := email.SendEmail(sub.Email, message); err != nil {
+					log.Println(err)
+				}
+
+			}(sub)
 
 		case err := <-partitionConsumer.Errors():
 			log.Printf("Error consuming message: %v", err)
