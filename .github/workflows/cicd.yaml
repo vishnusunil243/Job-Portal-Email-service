@@ -33,4 +33,4 @@ jobs:
         with:
           context:  .     
           push: true
-          tags: vishnusunil243/job-portal-search-service
+          tags: vishnusunil243/job-portal-notification-service
