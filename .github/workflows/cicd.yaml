@@ -26,6 +26,7 @@ jobs:
          echo 'SMTP_USER=${{ secrets.SMTP_USER }}' >> .env
          echo 'REDIS_ADDR=${{ secrets.REDIS_ADDR }}' > .env   
          echo 'SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}' >> .env
+         echo 'KAFKA_ADDR=${{ secrets.KAFKA_ADDR }}' >> .env
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4

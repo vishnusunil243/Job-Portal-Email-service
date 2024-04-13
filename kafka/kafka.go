@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/IBM/sarama"
 	email "github.com/vishnusunil243/Job-Portal-Email-service/internal/helper/EmailSend"
@@ -265,7 +266,7 @@ func StartConsumingSubscribed() {
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
 	config.Consumer.Offsets.AutoCommit.Enable = true
-	consumer, err := sarama.NewConsumer([]string{"localhost:9092"}, config)
+	consumer, err := sarama.NewConsumer([]string{os.Getenv("KAFKA_ADDR")}, config)
 	if err != nil {
 		log.Fatalf("Error creating consumer: %v", err)
 	}
