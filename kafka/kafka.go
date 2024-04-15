@@ -266,7 +266,7 @@ func StartConsumingSubscribed() {
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
 	config.Consumer.Offsets.AutoCommit.Enable = true
-	consumer, err := sarama.NewConsumer([]string{os.Getenv("KAFKA_ADDR")}, config)
+	consumer, err := sarama.NewConsumer([]string{"apache-kafka-service:9092"}, config)
 	fmt.Println("kafka address is : ", os.Getenv("KAFKA_ADDR"))
 	if err != nil {
 		log.Fatalf("Error creating consumer: %v", err)
