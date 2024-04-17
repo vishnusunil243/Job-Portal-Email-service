@@ -15,6 +15,7 @@ import (
 var redisClient *redis.Client
 
 func init() {
+	fmt.Println("hii from init redis")
 	redisClient = redis.NewClient(&redis.Options{
 		Addr:     os.Getenv("REDIS_ADDR"),
 		Password: "",
@@ -31,7 +32,7 @@ func SendOTP(email string) error {
 	message.SetHeader("To", email)
 	message.SetHeader("Subject", "OTP Verification")
 	otp := generateOTP()
-
+	fmt.Println("redis address is ", os.Getenv("REDIS_ADDR"))
 	message.SetBody("text/plain", "THIS WILL EXPIRE IN 5 MINUTES \n YOUR OTP IS : "+otp)
 	dialer := gomail.NewDialer("smtp.gmail.com", 587, os.Getenv("SMTP_USER"), os.Getenv("SMTP_PASSWORD"))
 	otpKey := fmt.Sprintf("otp:%s", email)
