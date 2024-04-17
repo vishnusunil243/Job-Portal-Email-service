@@ -17,7 +17,7 @@ var redisClient *redis.Client
 func init() {
 	fmt.Println("hii from init redis")
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     os.Getenv("REDIS_ADDR"),
+		Addr:     "redis-service:6379",
 		Password: "",
 		DB:       0,
 	})
@@ -32,13 +32,13 @@ func SendOTP(email string) error {
 	message.SetHeader("To", email)
 	message.SetHeader("Subject", "OTP Verification")
 	otp := generateOTP()
-	fmt.Println("redis address is ", os.Getenv("REDIS_ADDR"))
 	message.SetBody("text/plain", "THIS WILL EXPIRE IN 5 MINUTES \n YOUR OTP IS : "+otp)
 	dialer := gomail.NewDialer("smtp.gmail.com", 587, os.Getenv("SMTP_USER"), os.Getenv("SMTP_PASSWORD"))
 	otpKey := fmt.Sprintf("otp:%s", email)
 	err := redisClient.Set(otpKey, otp, 300*time.Second).Err()
 	if err != nil {
 		log.Println("failed to store otp in redis")
+		log.Println("error is : ", err)
 		return err
 	}
 	if err := dialer.DialAndSend(message); err != nil {
