@@ -28,6 +28,8 @@ func generateOTP() string {
 }
 func SendOTP(email string) error {
 	message := gomail.NewMessage()
+	user := os.Getenv("SMTP_USER")
+	password := os.Getenv("SMTP_PASSWORD")
 	message.SetHeader("From", os.Getenv("SMTP_USER"))
 	message.SetHeader("To", email)
 	message.SetHeader("Subject", "OTP Verification")
@@ -42,6 +44,7 @@ func SendOTP(email string) error {
 		return err
 	}
 	if err := dialer.DialAndSend(message); err != nil {
+		log.Println("user is", user, "password is ", password)
 		log.Println("error sending message: ", err)
 		return err
 	}
